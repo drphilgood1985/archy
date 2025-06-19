@@ -1,0 +1,47 @@
+📄 archiveHandler.mjs
+  📥 Imports: ./commands.mjs
+  📤 Exports: handleArchiveCommand
+
+📄 assistantsClient.mjs
+  📥 Imports: dotenv/config, pg, openai, fs/promises, path
+  📤 Exports: extractMetadataFromMessages, validateMetadataSchema, runAssistantForTags, runAssistantForSummary
+
+📄 commands.mjs
+  📥 Imports: ./assistantsClient.mjs, ./confirmationManager.mjs, ./embedder.mjs, ./pineconeClient.mjs, ./sqlClient.mjs, ./postToThread.mjs
+  📤 Exports: handleSummaryCommand, handleRetagCommand, handleSearchCommand, handleGhostbustersCommand, handleArchiveCommand
+
+📄 confirmationManager.mjs
+  📥 Imports: openai
+  📤 Exports: normalizeInput, confirm
+
+📄 embedder.mjs
+  📥 Imports: openai
+  📤 Exports: embedText
+
+📄 ghostbusters.mjs
+  📥 Imports: fs, path, child_process
+  📤 Exports: isGhostbustersActive, startGhostbusters, stopGhostbusters
+
+📄 index.mjs
+  📥 Imports: dotenv/config, ./ghostbusters.mjs, discord.js, ./commands.mjs, ./logger.mjs
+  📤 Exports: (none)
+
+📄 logger.mjs
+  📥 Imports: fs
+  📤 Exports: logError, logInfo, logStartup
+
+📄 pineconeClient.mjs
+  📥 Imports: @pinecone-database/pinecone
+  📤 Exports: upsertToPinecone, semanticSearch
+
+📄 postToThread.mjs
+  📥 Imports: discord.js, pg
+  📤 Exports: postArchivedLogToThread
+
+📄 scanDeps.mjs
+  📥 Imports: fs, path, acorn
+  📤 Exports: (none)
+
+📄 sqlClient.mjs
+  📥 Imports: pg, dotenv
+  📤 Exports: insertTicketMetadata, insertTicketMessage, insertTicketFile, fetchTicketMetadata, fetchTicketMessages, searchTicketsByKeywords, queryTicketByKeywords, queryTicketIdByChannel

@@ -1,0 +1,73 @@
+import { Redis } from '@upstash/redis';
+
+const redis = new Redis({
+  url: process.env.REDIS_URL,
+  token: process.env.REDIS_TOKEN,
+});
+
+let memoryStore = new Map();
+let redisAvailable = true;
+
+async function testRedisConnection() {
+  try {
+    await redis.set('__test_key__', 'test');
+    await redis.del('__test_key__');
+    redisAvailable = true;
+  } catch {
+    redisAvailable = false;
+  }
+}
+
+// Test Redis availability on module load
+testRedisConnection();
+
+export async function getSession(key) {
+  if (redisAvailable) {
+    try {
+      const jsonString = await redis.get(key);
+      if (!jsonString) return null;
+      return JSON.parse(jsonString);
+    } catch {
+      redisAvailable = false;
+    }
+  }
+  return memoryStore.get(key) || null;
+}
+
+export async function setSession(key, value) {
+  if (redisAvailable) {
+    try {
+      const jsonString = JSON.stringify(value);
+      await redis.set(key, jsonString, { ex: 1800 }); // expire in 30 minutes
+      return true;
+    } catch {
+      redisAvailable = false;
+    }
+  }
+  memoryStore.set(key, value);
+  return true;
+}
+
+export async function delSession(key) {
+  if (redisAvailable) {
+    try {
+      await redis.del(key);
+      return true;
+    } catch {
+      redisAvailable = false;
+    }
+  }
+  return memoryStore.delete(key);
+}
+
+export async function hasSession(key) {
+  if (redisAvailable) {
+    try {
+      const exists = await redis.exists(key);
+      return exists === 1;
+    } catch {
+      redisAvailable = false;
+    }
+  }
+  return memoryStore.has(key);
+}

@@ -1,0 +1,45 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+*.env.backup
+
+# Logs and error traces
+*.log
+startup.log
+errorlog*.txt
+
+# System + Editor Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# OS/IDE artifacts
+.vscode/
+.idea/
+
+# Build outputs (optional)
+dist/
+build/
+
+# Backup files
+*~
+*.bak*
+*.backup
+
+# Personal notes or throwaways
+You said.txt
+call logger code.txt
+
+# Ignore database dumps or raw export files
+*.sql
+*.dump
+
+# Patches and backups
+patch batches/
+prompt stuff/
+backup_*/
+knowngood/
+noassist/

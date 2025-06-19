@@ -1,0 +1,48 @@
+import 'dotenv/config';
+import OpenAI from 'openai';
+
+const archyClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const archyModel = process.env.ARCHYBOT_MODEL;
+const archyAssistantId = process.env.ARCHYBOT_ASSISTANT_ID;
+
+const confirmationState = {
+  summaryConfirmed: false,
+  tagsConfirmed: false
+};
+
+async function normalizeInput(input = '', userId = '') {
+  const prompt = `Determine whether the following user response confirms intent to proceed with an action like archiving or tagging. Respond with only 'true' or 'false'.\n\nUser: ${input}`;
+
+  try {
+    const response = await archyClient.chat.completions.create({
+      model: archyModel,
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a confirmation interpreter. Return only "true" or "false" with no commentary.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0,
+      max_tokens: 5
+    });
+
+    return response.choices[0].message.content.trim().toLowerCase() === 'true';
+  } catch (err) {
+    console.error('ArchyBot confirmation check failed:', err.message);
+    return false;
+  }
+}
+
+function confirm(step) {
+  if (step === 'summary') confirmationState.summaryConfirmed = true;
+  if (step === 'tags') confirmationState.tagsConfirmed = true;
+}
+
+export {
+  normalizeInput,
+  confirm
+};

@@ -1,0 +1,64 @@
+// sessionInterface.mjs
+import * as redisSession from './sessionStore.mjs';
+import * as sqlSession from './sqlClient.mjs';
+
+let redisAvailable = true;
+
+async function testRedisConnection() {
+  try {
+    // Test Redis availability by setting and deleting a dummy key
+    await redisSession.setSession('__test_key__', 'test');
+    await redisSession.delSession('__test_key__');
+    redisAvailable = true;
+  } catch {
+    redisAvailable = false;
+  }
+}
+
+// Immediately test Redis on module load
+testRedisConnection();
+
+export async function getSession(key) {
+  if (redisAvailable) {
+    try {
+      return await redisSession.getSession(key);
+    } catch {
+      redisAvailable = false;
+    }
+  }
+  // Fall back to SQL session storage
+  return await sqlSession.getSession(key);
+}
+
+export async function setSession(key, value) {
+  if (redisAvailable) {
+    try {
+      return await redisSession.setSession(key, value);
+    } catch {
+      redisAvailable = false;
+    }
+  }
+  return await sqlSession.setSession(key, value);
+}
+
+export async function delSession(key) {
+  if (redisAvailable) {
+    try {
+      return await redisSession.delSession(key);
+    } catch {
+      redisAvailable = false;
+    }
+  }
+  return await sqlSession.delSession(key);
+}
+
+export async function hasSession(key) {
+  if (redisAvailable) {
+    try {
+      return await redisSession.hasSession(key);
+    } catch {
+      redisAvailable = false;
+    }
+  }
+  return await sqlSession.hasSession(key);
+}
